@@ -15,10 +15,12 @@ def _calculate_maximum(df: pd.DataFrame, is_ex: bool = False):
     """
     if is_ex:
         end_date = df["cum_ex_return_wo_cost_mdd"].idxmin()
-        start_date = df.loc[df.index <= end_date]["cum_ex_return_wo_cost"].idxmax()
+        start_date = df.loc[df.index <=
+                            end_date]["cum_ex_return_wo_cost"].idxmax()
     else:
         end_date = df["return_wo_mdd"].idxmin()
-        start_date = df.loc[df.index <= end_date]["cum_return_wo_cost"].idxmax()
+        start_date = df.loc[df.index <=
+                            end_date]["cum_return_wo_cost"].idxmax()
     return start_date, end_date
 
 
@@ -47,13 +49,18 @@ def _calculate_report_data(df: pd.DataFrame) -> pd.DataFrame:
     report_df["cum_return_wo_cost"] = df["return"].cumsum()
     report_df["cum_return_w_cost"] = (df["return"] - df["cost"]).cumsum()
     # report_df['cum_return'] - report_df['cum_return'].cummax()
-    report_df["return_wo_mdd"] = _calculate_mdd(report_df["cum_return_wo_cost"])
-    report_df["return_w_cost_mdd"] = _calculate_mdd((df["return"] - df["cost"]).cumsum())
+    report_df["return_wo_mdd"] = _calculate_mdd(
+        report_df["cum_return_wo_cost"])
+    report_df["return_w_cost_mdd"] = _calculate_mdd(
+        (df["return"] - df["cost"]).cumsum())
 
     report_df["cum_ex_return_wo_cost"] = (df["return"] - df["bench"]).cumsum()
-    report_df["cum_ex_return_w_cost"] = (df["return"] - df["bench"] - df["cost"]).cumsum()
-    report_df["cum_ex_return_wo_cost_mdd"] = _calculate_mdd((df["return"] - df["bench"]).cumsum())
-    report_df["cum_ex_return_w_cost_mdd"] = _calculate_mdd((df["return"] - df["cost"] - df["bench"]).cumsum())
+    report_df["cum_ex_return_w_cost"] = (
+        df["return"] - df["bench"] - df["cost"]).cumsum()
+    report_df["cum_ex_return_wo_cost_mdd"] = _calculate_mdd(
+        (df["return"] - df["bench"]).cumsum())
+    report_df["cum_ex_return_w_cost_mdd"] = _calculate_mdd(
+        (df["return"] - df["cost"] - df["bench"]).cumsum())
     # return_wo_mdd , return_w_cost_mdd,  cum_ex_return_wo_cost_mdd, cum_ex_return_w
 
     report_df["turnover"] = df["turnover"]
@@ -87,8 +94,9 @@ def _report_figure(df: pd.DataFrame) -> [list, tuple]:
     report_df = _temp_df
 
     # Create figure
-    _default_kind_map = dict(kind="ScatterGraph", kwargs={"mode": "lines+markers"})
-    _temp_fill_args = {"fill": "tozeroy", "mode": "lines+markers"}
+    _default_kind_map = dict(kind="ScatterGraph", kwargs={
+                             "mode": "lines"})
+    _temp_fill_args = {"fill": "tozeroy", "mode": "lines"}
     _column_row_col_dict = [
         ("cum_bench", dict(row=1, col=1)),
         ("cum_return_wo_cost", dict(row=1, col=1)),
@@ -98,16 +106,24 @@ def _report_figure(df: pd.DataFrame) -> [list, tuple]:
         ("cum_ex_return_wo_cost", dict(row=4, col=1)),
         ("cum_ex_return_w_cost", dict(row=4, col=1)),
         ("turnover", dict(row=5, col=1)),
-        ("cum_ex_return_w_cost_mdd", dict(row=6, col=1, graph_kwargs=_temp_fill_args)),
-        ("cum_ex_return_wo_cost_mdd", dict(row=7, col=1, graph_kwargs=_temp_fill_args)),
+        ("cum_ex_return_w_cost_mdd", dict(
+            row=6, col=1, graph_kwargs=_temp_fill_args)),
+        ("cum_ex_return_wo_cost_mdd", dict(
+            row=7, col=1, graph_kwargs=_temp_fill_args)),
     ]
 
     _subplot_layout = dict()
     for i in range(1, 8):
         # yaxis
-        _subplot_layout.update({"yaxis{}".format(i): dict(zeroline=True, showline=True, showticklabels=True)})
+        _subplot_layout.update({"yaxis{}".format(i): dict(
+            zeroline=True, showline=True, showticklabels=True)})
         _show_line = i == 7
-        _subplot_layout.update({"xaxis{}".format(i): dict(showline=_show_line, type="category", tickangle=45)})
+        _subplot_layout.update({"xaxis{}".format(i): dict(
+            showline=_show_line,
+            type="date",
+            dtick="M3",
+            tickformat="%b\n%Y",
+            tickangle=0)})
 
     _layout_style = dict(
         height=1200,

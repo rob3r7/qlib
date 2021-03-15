@@ -32,9 +32,11 @@ def _get_risk_analysis_data_with_report(
     #     analysis["pred_long_short"] = risk_analysis(report_long_short_df["long_short"])
 
     if not report_normal_df.empty:
-        analysis["excess_return_without_cost"] = risk_analysis(report_normal_df["return"] - report_normal_df["bench"])
+        analysis["excess_return_without_cost"] = risk_analysis(
+            report_normal_df["return"] - report_normal_df["bench"])
         analysis["excess_return_with_cost"] = risk_analysis(
-            report_normal_df["return"] - report_normal_df["bench"] - report_normal_df["cost"]
+            report_normal_df["return"] -
+            report_normal_df["bench"] - report_normal_df["cost"]
         )
     analysis_df = pd.concat(analysis)  # type: pd.DataFrame
     analysis_df["date"] = date
@@ -63,7 +65,8 @@ def _get_monthly_risk_analysis_with_report(report_normal_df: pd.DataFrame) -> pd
     """
 
     # Group by month
-    report_normal_gp = report_normal_df.groupby([report_normal_df.index.year, report_normal_df.index.month])
+    report_normal_gp = report_normal_df.groupby(
+        [report_normal_df.index.year, report_normal_df.index.month])
     # report_long_short_gp = report_long_short_df.groupby(
     #     [report_long_short_df.index.year, report_long_short_df.index.month]
     # )
@@ -79,7 +82,8 @@ def _get_monthly_risk_analysis_with_report(report_normal_df: pd.DataFrame) -> pd
             # The month's data is less than 3, not displayed
             # FIXME: If the trading day of a month is less than 3 days, a breakpoint will appear in the graph
             continue
-        month_days = pd.Timestamp(year=gp_m[0], month=gp_m[1], day=1).days_in_month
+        month_days = pd.Timestamp(
+            year=gp_m[0], month=gp_m[1], day=1).days_in_month
         _temp_df = _get_risk_analysis_data_with_report(
             _m_report_normal,
             # _m_report_long_short,
@@ -99,8 +103,10 @@ def _get_monthly_analysis_with_feature(monthly_df: pd.DataFrame, feature: str = 
     """
     _monthly_df_gp = monthly_df.reset_index().groupby(["level_1"])
 
-    _name_df = _monthly_df_gp.get_group(feature).set_index(["level_0", "level_1"])
-    _temp_df = _name_df.pivot_table(index="date", values=["risk"], columns=_name_df.index)
+    _name_df = _monthly_df_gp.get_group(
+        feature).set_index(["level_0", "level_1"])
+    _temp_df = _name_df.pivot_table(
+        index="date", values=["risk"], columns=_name_df.index)
     _temp_df.columns = map(lambda x: "_".join(x[-1]), _temp_df.columns)
     _temp_df.index = _temp_df.index.strftime("%Y-%m")
 
@@ -152,7 +158,11 @@ def _get_monthly_risk_analysis_figure(report_normal_df: pd.DataFrame) -> Iterabl
         _temp_df = _get_monthly_analysis_with_feature(_monthly_df, _feature)
         yield ScatterGraph(
             _temp_df,
-            layout=dict(title=_feature, xaxis=dict(type="category", tickangle=45)),
+            layout=dict(
+                title=_feature,
+                xaxis=dict(type="date",
+                           dtick="M3",
+                           tickangle=-90)),
             graph_kwargs={"mode": "lines+markers"},
         ).figure
 
